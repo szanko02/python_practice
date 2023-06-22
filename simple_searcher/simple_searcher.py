@@ -23,12 +23,12 @@ if es.indices.exists(index=index_name):
 else:
     print(f"Index {index_name} does not exist")
 
-@app.route("/index_data")
+@app.route("/index_data", methods=["POST"])
 def index_data():
     with open('./posts.csv', 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            es.index(index=index_name, body=row)
+            es.index(index=index_name, document=row)
     return jsonify({"message": "Data indexed successfully"})
 
 @app.route('/')
@@ -37,11 +37,12 @@ def home():
 
 @app.route("/search")
 def search():
+    query = request.args.get("query")
     if query:
         results = search_documents(query)
     else:
         results = []
-    return jsonify(results)
+    return render_template("search.html", results=results)
 
 def search_documents(query):
     search_query = {
@@ -55,7 +56,7 @@ def search_documents(query):
         },
         "size": 20
     }
-    results = es.search(index=index_name, body=search_query)
+    results = es.search(index=index_name, body=search_query["query"], sort=search_query["sort"], size=search_query["size"])
     hits = results["hits"]["hits"]
     return hits
 
