@@ -61,7 +61,7 @@ def search_documents(query):
     return hits
 
 
-@app.route("/delete/<doc_id>", methods=["GET"])
+@app.route("/delete/<doc_id>", methods=["DELETE"])
 def delete_docs_handler(doc_id):
     try:
         es.delete(index=index_name, id=doc_id)
