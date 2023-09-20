@@ -61,9 +61,13 @@ def search_documents(query):
     return hits
 
 
-@app.route("/delete/<doc_id>")
-def delete_docs_handler():
-    pass
+@app.route("/delete/<doc_id>", methods=["GET"])
+def delete_docs_handler(doc_id):
+    try:
+        es.delete(index=index_name, id=doc_id)
+        return jsonify({"message": f"Document with ID {doc_id} deleted successfully"})
+    except Exception as e:
+        return jsonify({"message": f"Failed to delete document with ID {doc_id}: {str(e)}"})
 
 if __name__ == "__main__":
     es.indices.create(index=index_name, body=index_config)
